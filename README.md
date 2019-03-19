@@ -1,2 +1,3 @@
 # nzoi-camp-code
-solid yeet
+
+some competitve coding practice
