@@ -6,8 +6,18 @@ vector<vector<int>> dptab;
 
 int solve(int apos, int bpos) {
 	// base case, one or both strings	are empty. return 0
-	if (apos == -1 || bpos == -1) 
-		return max(apos, bpos) > 0 ? max(apos, bpos) : 0;
+	if (apos == -1 || bpos == -1) {
+		//cout << endl;
+		//cout << apos << " " << bpos << endl;
+		//cout << (max(apos, bpos) >= 0 ? max(apos, bpos) + 1 : 0) << endl;
+		return max(apos, bpos) >= 0 ? max(apos, bpos) + 1 : 0;
+
+	}
+
+	// if dptab alread has answer
+	if (dptab[apos][bpos] != -1)
+		return dptab[apos][bpos];
+
 
 	// if last chars are the same
 	if (a[apos] == b[bpos])
