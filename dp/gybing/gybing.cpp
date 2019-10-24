@@ -21,7 +21,7 @@ int solve(int posx, int posy, bool going_left) {
 
 	// if y axis position is at end, return the final wind score 
 	if (posy == length-1) {
-		return wind[posy][posx];
+		return dp_tab[posx][posy][going_left] = wind[posy][posx];
 	}
 
 
@@ -66,6 +66,16 @@ int main(int argc, char *argv[]) {
 	for(int i = 0; i < width; i++) {
 		c_max = max(c_max, max(solve(i, 0, true), solve(i, 0, false)));
 	}
+
+
+	for(auto row : dp_tab) {
+		for(auto e : row) {
+			// LEFT FIRST
+			cout << e[1] << "/" << e[0] << "\t\t";
+		}
+		cout << endl;
+	}
+	
 
 	cout << c_max << endl;
 
