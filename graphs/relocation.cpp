@@ -50,33 +50,118 @@ int main(int argc, char *argv[]) {
 	}
 
 	
-	//cycle_check(adj_list, 0, 0, vector<bool>(node_n, false))
 	/* 
 	 * sort edge list by weight
 	 * for edge in edge list, add to second adj list, check second adj list for cycles
 	 *  true - somehow remove??
 	 *  false - continue
 	 */
-	cout << edge_n << endl;
-	cout << edge_list.size() << endl;
-	for (auto edge = edge_list.begin(); edge != edge_list.end(); ++edge) {
-		if (is_town[(*edge)[1]] || is_town[(*edge)[2]]) {
-			edge_list.erase(); /////////////////////YEEEEEEETTTTTT
-		}
-	}
-	cout << edge_list.size() << endl;
 
+	// remove non market-market edges
+	bool done_flag;
+	do {
+		done_flag = true;
+		for (int i = 0; i < edge_list.size(); ++i) {
+			if (is_town[edge_list[i][1]] || is_town[edge_list[i][2]]) {
+				edge_list.erase(edge_list.begin()+i);
+				done_flag = false;
+			}
+		}
+	} while (done_flag == false);
+
+
+	// sort edge list in aceding order of weight
 	sort(edge_list.begin(), edge_list.end(), [](vector<int> a, vector<int> b) {
 			return a[0] < b[0];
 	});
-	cout << endl << endl;
-	for(auto r : edge_list) {
-		for(auto a : r) {
-			cout << a << " ";
+
+	int min_span_tree = 0;
+	vector<vector<vector<int>>> min_span_adj_list(node_n, vector<vector<int>>());
+	for(auto edge : edge_list) {
+		min_span_adj_list[edge[1]].push_back({edge[2], edge[0]});
+		min_span_adj_list[edge[2]].push_back({edge[1], edge[0]});
+		if (cycle_check(min_span_adj_list, edge[1], edge[1], vector<bool>(node_n, false))) {
+			min_span_adj_list[edge[1]].pop_back();
+			min_span_adj_list[edge[2]].pop_back();
+		} else {
+			min_span_tree += edge[0];
 		}
-		cout << endl;
 	}
+
+
+
+	cout << (closest_town + min_span_tree) * 2 << endl;
+
 
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
