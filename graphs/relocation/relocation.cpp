@@ -4,6 +4,7 @@ using namespace std;
 int market_n, edge_n, node_n;
 vector<vector<vector<int>>> adj_list;
 vector<vector<vector<int>>> targets_left;
+map<vector<int>, int> target_routes;
 
 string pp(vector<int>& list) {
 	stringstream ss;
@@ -54,7 +55,7 @@ int dika(int from, int to) {
 
 
 int ts(vector<int> targets) {
-int ts(int pos, vector<int> targets, int goal) {
+	if (target_routes.count(targets) == 0) {
 		int route_len = 0;
 		int direct;
 		for(int i = 1; i < targets.size(); ++i) {
@@ -69,6 +70,8 @@ int ts(int pos, vector<int> targets, int goal) {
 			route_len += adj_list[targets[i-1]].back()[1];
 			//route_len += dika(targets[i-1], targets[i]);
 		}
+		target_routes[targets] = route_len;
+	}
 	return target_routes[targets];
 }
 
