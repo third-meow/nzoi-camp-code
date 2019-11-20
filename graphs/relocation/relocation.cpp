@@ -53,34 +53,44 @@ int dika(int from, int to) {
 }
 
 
-// try all routes, begining with pos, passing all targets, and ending at goal
+int ts(vector<int> targets) {
 int ts(int pos, vector<int> targets, int goal) {
-	// sort targets
-	sort(targets.begin(), targets.end());
-
-	// track min distance
-	int min_score = INF;
-	// for every permutation of targets
-	do {
-		// score starts as just distance from pos to first target
-		int score = dika(pos, targets[0]);
+		int route_len = 0;
+		int direct;
 		for(int i = 1; i < targets.size(); ++i) {
 			int direct = check_direct(targets[i-1], targets[i]);
 			if (direct != -1) {
-				score += direct;
+				route_len += direct;
 				continue;
 			}
 			// calc distance from last target to this target
 			adj_list[targets[i-1]].push_back({targets[i], dika(targets[i-1], targets[i])});
-			// add that distance to score
-			score += adj_list[targets[i-1]].back()[1];
+			// add that distance to route_len
+			route_len += adj_list[targets[i-1]].back()[1];
+			//route_len += dika(targets[i-1], targets[i]);
 		}
+	return target_routes[targets];
+}
+
+// try all routes, begining with pos, passing all targets, and ending at goal
+int score_posgoal(int pos, vector<int> targets, int goal) {
+	// track min distance
+	int min_score = INF;
+	// sort targets
+	sort(targets.begin(), targets.end());
+	// for every permutation of targets
+	do {
+		// use ts to calc route length through targets
+		int score = ts(targets);
+		// add distance from pos to first target
+		score += dika(pos, targets[0]);
 		// finally calc distance from last target to goal node
 		score += dika(targets[targets.size()-1], goal);
+
 		// if score is smaller than min, it becomes min 
 		min_score = min(score, min_score);
 	} while(next_permutation(targets.begin(), targets.end()));
-	
+
 	// return shorted route score
 	return min_score;
 }
@@ -115,27 +125,31 @@ int main(int argc, char *argv[]) {
 	/*
 	 * algorithm
 	 */
+
 	// track minimum
 	int c_min = INF;
 	// count number of start/end nodes
 	int count = 0;
+
+	vector<bool> tried(node_n, false);
 
 	// for each market town
 	for(auto m : markets) {
 		// take it's neighbours
 		for(int i = 0; i < adj_list[m].size(); ++i) {
 			// as long as they're not markets themselves
-			if (istown[adj_list[m][i][0]]) {
-				cout << "*" << endl;
-				++count;
+			if (istown[adj_list[m][i][0]] && !tried[adj_list[m][i][0]]) {
+				//cout << "*" << endl;
 				// use brute-force-traveling-salesman
-				c_min = min(c_min, ts(adj_list[m][i][0], markets, adj_list[m][i][0]));
+				++count;
+				c_min = min(c_min, score_posgoal(adj_list[m][i][0], markets, adj_list[m][i][0]));
+				tried[adj_list[m][i][0]] = true;
 			}
 		}
 	}
 
-	cout << count << endl;
-	cout << endl << c_min << endl;
+	//cout << count << endl;
+	cout << c_min << endl;
 	
 
 	return 0;
