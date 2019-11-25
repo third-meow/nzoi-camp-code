@@ -1,6 +1,15 @@
 #include<bits/stdc++.h>
+#include "Instrumentor.h"
 using namespace std; 
 #define INF 2000000 
+
+#define PROFILING 1
+#if PROFILING
+#define PROFILE_THIS() InstrumentationTimer timer##__LINE__(__FUNCTION__)
+#else
+#define PROFILE_THIS() 
+#endif
+
 int market_n, edge_n, node_n;
 vector<vector<vector<int>>> adj_list;
 vector<vector<vector<int>>> targets_left;
@@ -16,6 +25,7 @@ string pp(vector<int>& list) {
 
 // check for direct path
 int check_direct(int from, int to) {
+	PROFILE_THIS();
 	for(int i = 0; i < adj_list[from].size(); ++i) {
 		if (adj_list[from][i][0] == to) {
 			return adj_list[from][i][1];
@@ -26,6 +36,12 @@ int check_direct(int from, int to) {
 
 // dijkstra algorithim
 int dika(int from, int to) {
+	PROFILE_THIS();
+
+
+	if (check_direct(from, to) != -1) {
+		return check_direct(from, to);
+	}
 	// priority queue
 	priority_queue<pair<int, int>, vector<pair<int, int>>, std::greater<pair<int, int>>> pq;
 	vector<int> been(node_n, INF);
@@ -42,19 +58,22 @@ int dika(int from, int to) {
 		been[n.second] = n.first;
 
 		// if reached goal node, return distance
-		if (n.second == to) 
+		if (n.second == to) {
 			return n.first;
+		}
 
 		// for each neighbouring node, push them to queue
 		for(auto neighbour : adj_list[n.second]) {
 			// push the neighbour, and current distance + distance to neighbour
 			pq.push(make_pair(neighbour[1]+n.first, neighbour[0]));
 		}
-	} return INF;
+	} 
+	return INF;
 }
 
 
 int ts(vector<int> targets) {
+	PROFILE_THIS();
 	if (target_routes.count(targets) == 0) {
 		int route_len = 0;
 		int direct;
@@ -77,6 +96,7 @@ int ts(vector<int> targets) {
 
 // try all routes, begining with pos, passing all targets, and ending at goal
 int score_posgoal(int pos, vector<int> targets, int goal) {
+	PROFILE_THIS();
 	// track min distance
 	int min_score = INF;
 	// sort targets
@@ -99,6 +119,7 @@ int score_posgoal(int pos, vector<int> targets, int goal) {
 }
 
 int main(int argc, char *argv[]) {
+	Instrumentor::Get().BeginSession("results");
 	/*
 	 *  input
 	 */
@@ -155,6 +176,7 @@ int main(int argc, char *argv[]) {
 	cout << c_min << endl;
 	
 
+	Instrumentor::Get().EndSession();
 	return 0;
 }
 
