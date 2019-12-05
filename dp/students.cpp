@@ -1,34 +1,23 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-vector<uint32_t> dp_tab = {1};
+vector<vector<int>> dptab;
 
-uint32_t fact(int n, uint32_t mod) {
-	uint32_t run = 1;
-	for(int i = dp_tab.size(); i <= n; ++i) {
-		run = (run * i) % mod;
-	}
-	return run;
+int solve(int n, int r) {
+	if (n == r) return 1;
+	if (r == 1) return n;
+	if (dptab[n][r] != -1) return dptab[n][r];
+
+	return dptab[n][r] = (solve(n-1, r-1) + solve(n-1, r)) % (int) 1e5;
 }
 
-int main() {
-	int student_n, required;
-	cin >> student_n >> required;
+int main(int argc, char *argv[]) {
 
-	unsigned long long 
-	cout << ( fact(student_n) / ( fact(student_n - required) * fact(required) ) ) % 100000 << endl;
-
-	/*
-	for (int i = 0; i < 20; ++i) {
-		cout << fact_ro(i) << endl;
-		cout << fact_no(i) % 100000 << endl;
-		cout << fact(i) << endl;
-		cout << endl << endl;
-	}
-	*/
-
-
-
+	int n, r;
+	cin >> n >> r;
+	dptab = vector<vector<int>>(n+1, vector<int>(r+1, -1));
+	cout << solve(n, r) << endl;
+	
 
 	return 0;
 }
