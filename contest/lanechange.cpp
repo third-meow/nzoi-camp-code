@@ -2,53 +2,44 @@
 using namespace std;
 
 
-vector<vector<double>> tab = {{1.0}};
+vector<vector<long>> tab = {{1}};
 
 int main() {
 	ios_base::sync_with_stdio(false);
-	int q;
+	long q;
 	cin >> q;
 
-	int n, k;
-	for(int j = 0; j < q; ++j) {
+	long n, k;
+	for(long j = 0; j < q; ++j) {
 
 		cin >> n >> k;
+		bool flag = true;
 		while(tab.size() <= n) {
-			vector<double> working(tab.back().size()+1, 0.0);
+			if (flag) cout << "*" << endl;
+			flag = false;
+			auto working = vector<long>(tab.back().size()+1, 0);
 
-			for(int i = 1; i < tab.back().size()-1; ++i) {
-				double a = tab.back()[i-1] * 2;
-				double b = tab.back()[i+1] * 2;
-				working[i] = (a * b) / (a + b);
+			for(long i = 1; i < tab.back().size(); ++i) {
+				working[i-1] += tab.back()[i];
+				working[i+1] += tab.back()[i];
 			}
+			working[1] += tab.back()[0];
 
-			if (tab.back().size() > 1) {
-				working[0] = tab.back()[1];
-			} else {
-				working[0] = 0;
-			}
-
-			working.back() = tab.back().back() * 2;
-
+			working[0] *= 2;
 			tab.push_back(working);
 		}
 
-		double div = tab[n][n] / tab[n][k];
-		long ldiv = (long) div;
-
-		if ((((long)(div * 1000)) % 1000) > 500) {
-			ldiv += 1;
-		}
-		cout << ldiv % 1000000007 << endl;
+		cout << ((tab[n][k] % 1000000007) * ((long) pow(tab[n][n], -1) % 1000000007)) << endl;
+		//cout << (tab[n][k] / tab[n][n]) % 1000000007 << endl;
 
 		/*
+		cout << endl << endl;
 		for(auto row : tab) {
 			for(auto e : row) {
 				cout << e << " ";
 			} cout << endl;
 		}
 		*/
-		
 	}
 
 
