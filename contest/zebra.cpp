@@ -3,7 +3,7 @@ using namespace std;
 
 //globals
 vector<vector<vector<int>>> adj_list;
-vector<vector<int>> edge_ids;
+vector<vector<int>> edge_list;
 vector<vector<int>> closed;
 int n, m, d;
 
@@ -39,7 +39,7 @@ int main() {
 	cin >> n >> m >> d;
 
 	adj_list.resize(n);
-	edge_ids.resize(m);
+	edge_list.resize(m);
 	closed.resize(d);
 
 	int a, b, w;
@@ -50,7 +50,7 @@ int main() {
 		--b;
 		adj_list[a].push_back({w,b});
 		adj_list[b].push_back({w,a});
-		edge_ids[i] = {
+		edge_list[i] = {
 			a,
 			(int) adj_list[a].size() - 1,
 			b,
@@ -74,13 +74,12 @@ int main() {
 	int perfect = dijk();
 	for(int v = 0; v < d; ++v) {
 
-
-		//save backup of adj_list
-		auto bkup_adjlist = adj_list;
-
+		queue<vector<int>> store;
 		//'remove' closed paths
-		for(auto i : closed[v]) {
-			auto id = edge_ids[i];
+		for(int i : closed[v]) {
+			vector<int> id = edge_list[i];
+
+			store.push({adj_list[id[0]][id[1]][0], adj_list[id[2]][id[3]][0]});
 
 			adj_list[id[0]][id[1]][0] = -1;
 			adj_list[id[2]][id[3]][0] = -1;
@@ -96,8 +95,15 @@ int main() {
 		//compare and return
 		cout << (real - perfect) << endl;
 
-		//just restore backup
-		adj_list = bkup_adjlist;
+		//'unremove' closed paths
+		for(int i : closed[v]) {
+			vector<int> id = edge_list[i];
+
+
+			adj_list[id[0]][id[1]][0] = store.front()[0];
+			adj_list[id[2]][id[3]][0] = store.front()[1];
+			store.pop();
+		}
 	}
 		
 
