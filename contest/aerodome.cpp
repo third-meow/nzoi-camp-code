@@ -1,72 +1,37 @@
 #include<bits/stdc++.h>
 using namespace std;
+#define INF 2000000
 
-struct Timer {
-	int full;
-	int current = -1;
-
-	Timer(int f) {
-		full = f;
-		set();
-	}
-
-	void set() {
-		current = full;
-	}
-
-	bool tick() {
-		current--;
-		return current == 0;
-	}
-};
-
-struct {
-	bool operator()(Timer* a, Timer* b) const {
-		return a->full < b->full;
-	}
-} shorterTimer;
+int desk_n, ppl;
+vector<int> desk_times;
 
 int main(int argc, char *argv[]) {
-	int desk_n, ppl;
 	cin >> desk_n >> ppl;
 
-	vector<Timer> desks;
 	{
 		int t;
 		for (int i = 0; i < desk_n; ++i) {
 			cin >> t;
-			desks.push_back(Timer(t));
-			//desks.back().set();
+			desk_times.push_back(t);
 		}
 	}
 
-	int remaining = ppl;
-	int count = 0;
-	while (true) {
-		++count;
-		vector<Timer*> avail;
-		for (auto &&d : desks) {
-			if (d.tick()) {
-				//cout << "Done at " << count << endl;
-				avail.push_back(&d);
+	vector<int> desks(desk_n, 0);
+	int c_max = 0;
+	while (ppl < 0) {
+		int c_min = INF;
+		int c_min_idx;
+		for(int i = 0; i < desk_n; ++i) {
+			desks[i] += desk_times[i];
+			if (desks[i] < c_min) {
+				c_min = desks[i];
+				c_min_idx = i;
 			}
-		}
-
-		sort(avail.begin(), avail.end(), shorterTimer);
-
-		for (auto a : avail) {
-			if (remaining < 2) {
-				cout << count;
-				return 0;
-			}
-			--remaining;
-			a->set();
+			desks[i] -= desk_times[i];
 		}
 	}
 
-
-
-
+	cout << *max_element(desks.begin(), desks.end()) << endl;
 
 
 	return 0;
