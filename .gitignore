@@ -1,3 +1,6 @@
 
-*.out
-*data.txt
+**/a.out
+**/log
+**/testdata
+**/data
+**/data.*
