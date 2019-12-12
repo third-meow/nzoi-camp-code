@@ -1,45 +1,45 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define INF 2e10
+#define ulong unsigned long
 
 
 int main(int argc, char *argv[]) {
-	unsigned long desk_n, ppl;
-	vector<unsigned long> desk_times;
+	ulong desk_n, ppl;
+	vector<ulong> desk_times;
 
 	ios_base::sync_with_stdio(false);
 
 	
 
 	cin >> desk_n >> ppl;
-	vector<unsigned long> desks(desk_n, 0);
 
-	for (unsigned long i = 0; i < desk_n; ++i) {
-		unsigned long t;
-		cin >> t;
-		desk_times.push_back(t);
+	vector<array<ulong, 2>> desks(desk_n, {0, 0});
+
+	for (ulong i = 0; i < desk_n; ++i) {
+		cin >> desks[i][0];
+		desks[i][1] = desks[i][0];
 	}
 
-	while (ppl > 0) {
-		unsigned long c_min = INF;
-		unsigned long c_min_idx = 99;
-		for(unsigned long i = 0; i < desk_n; ++i) {
-			desks[i] += desk_times[i];
-			if (desks[i] < c_min) {
-				c_min = desks[i];
-				c_min_idx = i;
-			}
-			desks[i] -= desk_times[i];
-		}
-		desks[c_min_idx] += desk_times[c_min_idx];
-		ppl--;
+
+	while(ppl > 0) {
+		--ppl;
+		sort(desks.begin(), desks.end());
+		desks[0][0] += desks[0][1];
 	}
 
-	cout << *max_element(desks.begin(), desks.end()) << endl;
+	for(int i = 0; i < desk_n; ++i) {
+		desks[i][0] -= desks[i][1];
+		desks[i][1] = 0;
+	}
+
+
+	cout << (*max_element(desks.begin(), desks.end()))[0] << endl;
+
 	/*
 	cout << endl << endl;
 	for(auto e : desks) {
-		cout << e << " ";
+		cout << e[0] << "-" << e[1] << "  ";
 	} cout << endl;
 	*/
 
