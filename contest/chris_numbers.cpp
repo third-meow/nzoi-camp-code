@@ -3,46 +3,88 @@ using namespace std;
 #define INF 2000000000
 
 
+struct Node {
+	int val;
+	int idx;
+	int range_s, range_e;
 
-void build_segtree(const vector<int>& arr, vector<int>& tree, int pos, int start, int end) {
-	if (start != end) {
+	Node(int _val, int _idx, int _range_s, int _range_e) {
+		val = _val;
+		idx = _idx;
+		range_s = _range_s;
+		range_e = _range_e;
+	}
+
+	Node(int _val) {
+		val = _val;
+	}
+
+	bool operator<(const Node& other) const {
+		return val < other.val;
+	}
+};
+
+void build_segtree(const vector<int>& arr, vector<Node>& tree, int pos, int start, int end) {
+	if (start == end) {
+		tree[pos] = Node(arr[start], start, start, end);
+	} else {
 		int mid = (start + end) / 2;
 		build_segtree(arr, tree, (pos*2), start, mid);
-		build_segtree(arr, tree, (pos*2)+1, mid+1, end);
-		tree[pos] = min(tree[pos*2], tree[(pos*2)+1]);
+		build_segtree(arr, tree, ((pos*2)+1), mid+1, end);
+		Node smlr = min(tree[pos*2], tree[(pos*2)+1]);
+		tree[pos] = Node(smlr.val, smlr.idx, start, end);
+	}
+}
+
+Node min_q(vector<Node>& tree, int q_start,	int q_end, int pos = 1) {
+	if (q_start < 0 || q_start > q_end || q_start > tree[pos].range_e || q_end < tree[pos].range_s) {
+		return Node(INF);
+	} else if (q_start <= tree[pos].range_s &&	q_end >= tree[pos].range_e) {
+		return tree[pos];
 	} else {
-		tree[pos] = arr[start];
+		Node left = min_q(tree, q_start, q_end, (pos*2));
+		Node right = min_q(tree, q_start, q_end, ((pos*2)+1));
+		return min(left, right);
 	}
 }
 
-int r_min_q(const vector<int>& tree, int pos, int start, int end, int pos_start, int pos_end) {
-	if (start > pos_end || end < pos_start) return 0;
-	if (start <= pos_start && end >= pos_end) return pos;
-	int mid = (pos_start + pos_end) / 2;
-
-	int leftpos= r_min_q(tree, (pos*2), start, end, pos_start, mid);
-	int left = tree[leftpos];
-
-	int rightpos= r_min_q(tree, (pos*2)+1, start, end, mid+1, pos_end);
-	int right = tree[rightpos];
-
-	if (left < right) return leftpos;
-	return rightpos;
-}
-
-void update(vector<int>& tree, int pos, int start, int end, int delta, int pos_start, int pos_end) {
-	if (start > pos_end || end < pos_start) return;
-	if (pos_start == pos_end) {
-		tree[pos] += delta;
+void update_segtree(vector<Node>& tree, int pos, int start, int end, int delta) {
+	if (tree[pos].range_s > end || tree[pos].range_e < start) {
 		return;
+	} else if (start == end) {
+		tree[pos].val += delta;
+	} else {
+		update_segtree(tree, (pos*2), start, end, delta);
+		update_segtree(tree, (pos*2)+1, start, end, delta);
+		Node smlr = min(tree[pos*2], tree[(pos*2)+1]);
+		tree[pos] = Node(smlr.val, smlr.idx, start, end);
 	}
-
-	int mid = (pos_start + pos_end) / 2;
-	update(tree, (pos*2), start, end, delta, pos_start, mid);
-	update(tree, (pos*2)+1, start, end, delta, mid+1, pos_end);
-	tree[pos] = min(tree[(pos*2)], tree[(pos*2)+1]);
 }
-	
+		
+void print_segtree(const vector<Node>& tree, int size) {
+	cout << "------------------------------------------------------" << endl;
+	int npr = 1;
+	int npr_c = 0;
+	for(int i = 0; i < size; ++i) {
+		++npr_c;
+		int range = tree[i].range_e - tree[i].range_s;
+		for(int x = 0; x < range; ++x) {
+			cout << " ";
+		}
+		cout << (tree[i].val == INF ? -1 : tree[i].val);
+		for(int x = 0; x < range; ++x) {
+			cout << " ";
+		}
+
+		if (npr_c >= npr) {
+			cout << endl;
+			++npr;
+			npr_c = 0;
+		}
+	}
+	cout << "------------------------------------------------------" << endl;
+}
+
 
 int main(int argc, char *argv[]) {
 	int n, k;
@@ -53,40 +95,34 @@ int main(int argc, char *argv[]) {
 		cin >> nums[i];
 	}
 
-	vector<int> st(n*4, INF);
+	// build segment tree
+	vector<Node> st(4*n, Node(INF));
+	build_segtree(nums, st,	1, 0, n-1);
 
 	for(int i = 0; i < k; ++i) {
 		char cmd;
 		int a, b, delta;
 		cin >> cmd;
+
 		if (cmd == 'Q') {
+			
 			// get query bounds
 			cin >> a >> b;
-			
-			// build segment tree
-			build_segtree(nums, st, 1, 0, n-1);
-
 			// get position of smallest element
-			int small_pos = r_min_q(st, 1, a, b, 0, n-1);
-			int small = st[small_pos];
-
+			Node smallest = min_q(st, a, b);
 			// get position of second smallest element
-			update(st, 1, small_pos, small_pos, INF, 0, n-1);
-			int s_small_pos = r_min_q(st, 1, a, b, 0, n-1);
-			int s_small = st[s_small_pos];
-			update(st, 1, small_pos, small_pos, -INF, 0, n-1);
-
+			Node s_smallest = min(min_q(st, a, smallest.idx-1), min_q(st, smallest.idx+1, b));
 			// output smallest and second smallest elements
-			cout << small << " " << s_small << endl;
+			cout << smallest.val << " " << s_smallest.val << endl;
+
+		} else if (cmd == 'U') {
+
+			cin >> a >> b >> delta;
+			update_segtree(st, 1, a, b, delta);
+			print_segtree(st, n-1);
+
 		}
 
-		if (cmd == 'U') {
-			cin >> a >> b >> delta;
-			for(int i = a; i <= b; ++i) {
-				nums[i] += delta;
-			}
-		}
 	}
 	return 0;
 }
-
