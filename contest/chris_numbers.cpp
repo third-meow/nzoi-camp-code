@@ -51,40 +51,17 @@ Node min_q(vector<Node>& tree, int q_start,	int q_end, int pos = 1) {
 void update_segtree(vector<Node>& tree, int pos, int start, int end, int delta) {
 	if (tree[pos].range_s > end || tree[pos].range_e < start) {
 		return;
-	} else if (start == end) {
+	} else if (tree[pos].range_s == tree[pos].range_e) {
 		tree[pos].val += delta;
 	} else {
 		update_segtree(tree, (pos*2), start, end, delta);
 		update_segtree(tree, (pos*2)+1, start, end, delta);
 		Node smlr = min(tree[pos*2], tree[(pos*2)+1]);
-		tree[pos] = Node(smlr.val, smlr.idx, start, end);
+		tree[pos].val = smlr.val;
+		tree[pos].idx = smlr.idx;
 	}
 }
 		
-void print_segtree(const vector<Node>& tree, int size) {
-	cout << "------------------------------------------------------" << endl;
-	int npr = 1;
-	int npr_c = 0;
-	for(int i = 0; i < size; ++i) {
-		++npr_c;
-		int range = tree[i].range_e - tree[i].range_s;
-		for(int x = 0; x < range; ++x) {
-			cout << " ";
-		}
-		cout << (tree[i].val == INF ? -1 : tree[i].val);
-		for(int x = 0; x < range; ++x) {
-			cout << " ";
-		}
-
-		if (npr_c >= npr) {
-			cout << endl;
-			++npr;
-			npr_c = 0;
-		}
-	}
-	cout << "------------------------------------------------------" << endl;
-}
-
 
 int main(int argc, char *argv[]) {
 	int n, k;
@@ -105,7 +82,7 @@ int main(int argc, char *argv[]) {
 		cin >> cmd;
 
 		if (cmd == 'Q') {
-			
+
 			// get query bounds
 			cin >> a >> b;
 			// get position of smallest element
@@ -119,7 +96,6 @@ int main(int argc, char *argv[]) {
 
 			cin >> a >> b >> delta;
 			update_segtree(st, 1, a, b, delta);
-			print_segtree(st, n-1);
 
 		}
 
