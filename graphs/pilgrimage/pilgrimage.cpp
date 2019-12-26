@@ -2,36 +2,41 @@
 using namespace std;
 #define INF 20000000
 
+class DSU {
+	private:
+		vector<int>	parents;
+		vector<int> sizes;
+	public:
+		DSU() {;}
+		DSU(int n) {
+			parents.resize(n);
+			iota(parents.begin(), parents.end(), 0);
+			sizes.resize(n);
+			fill(sizes.begin(), sizes.end(), 1);
+		}
+
+		int find(int i) {
+			while (parents[i] != i) i = parents[i];
+			return i;
+		}
+		
+		void merge(int a, int b) {
+			a = find(a);
+			b = find(b);
+			if (a == b) return;
+
+			if (sizes[a] < sizes[b])
+				swap(a, b);
+
+			parents[b] = a;
+			sizes[a] += sizes[b];
+		}
+};
+
 int node_n, edge_n;
-vector<int> populations;
-vector<vector<vector<int>>> adj_list;
-vector<bool> connected;
+vector<vector<int>> edge_list;
+DSU max_span_tree;
 int total = 0;
-
-
-bool activate(int pos) {
-	if (connected[pos]) return false;
-
-	for(int i = 0; i < adj_list[pos].size(); ++i) {
-		if (connected[adj_list[pos][i][1]]) {
-			total += adj_list[pos][i][0];
-			connected[pos] = true;
-			return true;
-		}
-	}
-}
-
-int add(int pos) {
-	vector<int> new_act;
-	for(vector<int> neighbour : adj_list[pos]) {
-		if (activate(neighbour[1])) {
-			new_act.push_back(neighbour[1]);
-		}
-	}
-	for(int neighbour_id : new_act) {
-		add(neighbour_id);
-	}
-}
 
 
 int main(int argc, char *argv[]) {
@@ -39,37 +44,37 @@ int main(int argc, char *argv[]) {
 	// node no., edge no.
 	cin >> node_n >> edge_n;
 
+	// initialise disjoint set union
+	max_span_tree = DSU(node_n);
 
 	// populations
-	populations = vector<int>(node_n, 0);
+	int r;
 	for(int i = 0; i < node_n; ++i) {
-		cin >> populations[i];
+		cin >> r;
+		total += r;
 	}
 
-	// adjacency list
-	adj_list = vector<vector<vector<int>>>(node_n, vector<vector<int>>());
-	int a, b, r;
+	// edge list
+	int a, b;
 	for(int i = 0; i < edge_n; ++i) {
 		cin >> a >> b >> r;
-		adj_list[a].push_back({r, b});
-		adj_list[b].push_back({r, a});
+		edge_list.push_back({r, a, b});
 	}
 
-	// sort adjacency lists
-	for(int i = 0; i < node_n; ++i) {
-		sort(adj_list[i].begin(), adj_list[i].end(), greater<vector<int>>());
+	// sort edge list
+	sort(edge_list.begin(), edge_list.end(), greater<vector<int>>());
+
+	//int c = 0;
+	for(vector<int> edge : edge_list) {
+		if (max_span_tree.find(edge[1]) == max_span_tree.find(edge[2])) continue;
+		//++c;
+		max_span_tree.merge(edge[1], edge[2]);
+		total += edge[0];
+
+		//if (c == node_n) break;
 	}
 
-	connected = vector<bool>(node_n, 0);
-	connected[0] = true;
-	add(0);
-	for(int i = 0; i < node_n; ++i) {
-		if (connected[i]) {
-			total += populations[i];
-		}
-	}
 	cout << total << endl;
-
 	return 0;
 }
 
