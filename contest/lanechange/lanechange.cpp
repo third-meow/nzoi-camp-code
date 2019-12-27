@@ -2,24 +2,22 @@
 using namespace std;
 
 
-vector<vector<long>> tab = {{1}};
+vector<vector<uint64_t>> tab = {{1}};
 
 int main() {
 	ios_base::sync_with_stdio(false);
-	long q;
+	uint64_t q;
 	cin >> q;
 
-	long n, k;
-	for(long j = 0; j < q; ++j) {
+	uint64_t n, k;
+	for(uint64_t j = 0; j < q; ++j) {
 
+		vector<vector<uint64_t>> tab = {{1}};
 		cin >> n >> k;
-		bool flag = true;
 		while(tab.size() <= n) {
-			if (flag) cout << "*" << endl;
-			flag = false;
-			auto working = vector<long>(tab.back().size()+1, 0);
+			auto working = vector<uint64_t>(tab.back().size()+1, 0);
 
-			for(long i = 1; i < tab.back().size(); ++i) {
+			for(uint64_t i = 1; i < tab.back().size(); ++i) {
 				working[i-1] += tab.back()[i];
 				working[i+1] += tab.back()[i];
 			}
@@ -29,7 +27,7 @@ int main() {
 			tab.push_back(working);
 		}
 
-		cout << ((tab[n][k] % 1000000007) * ((long) pow(tab[n][n], -1) % 1000000007)) << endl;
+		cout << ((tab[n][k] % 1000000007) * ((uint64_t) pow(tab[n][n], -1) % 1000000007)) << endl;
 		//cout << (tab[n][k] / tab[n][n]) % 1000000007 << endl;
 
 		/*
