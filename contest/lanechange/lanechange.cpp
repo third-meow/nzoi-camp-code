@@ -5,17 +5,23 @@ using namespace std;
 vector<vector<uint64_t>> tab = {{1}};
 
 int main() {
+	// dont sync with standard io
 	ios_base::sync_with_stdio(false);
-	uint64_t q;
-	cin >> q;
+	
+	// test case count
+	uint64_t testcase_n;
+	cin >> testcase_n;
 
 	uint64_t n, k;
-	for(uint64_t j = 0; j < q; ++j) {
-
-		vector<vector<uint64_t>> tab = {{1}};
+	for(uint64_t j = 0; j < testcase_n; ++j) {
 		cin >> n >> k;
+		vector<uint64_t> working(1, 0);
+
 		while(tab.size() <= n) {
-			auto working = vector<uint64_t>(tab.back().size()+1, 0);
+			fill(working.begin(), working.end(), 0);
+			while (working.size() < tab.back().size()+1) {
+				working.push_back(0);
+			}
 
 			for(uint64_t i = 1; i < tab.back().size(); ++i) {
 				working[i-1] += tab.back()[i];
@@ -27,8 +33,8 @@ int main() {
 			tab.push_back(working);
 		}
 
-		cout << ((tab[n][k] % 1000000007) * ((uint64_t) pow(tab[n][n], -1) % 1000000007)) << endl;
-		//cout << (tab[n][k] / tab[n][n]) % 1000000007 << endl;
+		//cout << ((tab[n][k] % 1000000007) * ((uint64_t) pow(tab[n][n], -1) % 1000000007)) << endl;
+		cout << (tab[n][k] / tab[n][n]) % 1000000007 << endl;
 
 		/*
 		cout << endl << endl;
@@ -43,3 +49,4 @@ int main() {
 
 	return 0;
 }
+
